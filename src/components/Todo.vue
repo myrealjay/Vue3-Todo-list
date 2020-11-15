@@ -1,16 +1,20 @@
 <template>
     <div>
         <div class="main">
+            
             <h1>Todo App</h1>
+
             <div class="horizontal">
                 <input id="title" type="text" v-model="item" class="form-control">
                 <button id="add" class="btn btn-info" @click="addNew()">Add New</button>
             </div>
+
             <div class="display">
                 <label>Total: {{total}}</label>
                 <label >Pending: {{totalPending}}</label>
                 <label >Done: {{totalDone}}</label>
             </div>
+
             <div class="todo" v-for="(todo,i) in todos" :key="i">
                 <div :class="todo.done==1?'done-todo':'todo-item'">{{todo.name}}</div>
                  <button class="done" @click="markDone(i)">Done</button>
