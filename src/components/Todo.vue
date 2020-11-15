@@ -3,8 +3,8 @@
         <div class="main">
             <h1>Todo App</h1>
             <div class="horizontal">
-                <input type="text" v-model="item" class="form-control">
-                <button class="btn btn-info" @click="addNew()">Add New</button>
+                <input id="title" type="text" v-model="item" class="form-control">
+                <button id="add" class="btn btn-info" @click="addNew()">Add New</button>
             </div>
             <div class="display">
                 <label>Total: {{total}}</label>
