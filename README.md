@@ -1,4 +1,4 @@
-# vue3beginner
+# vue3 Todo List
 
 ## Project setup
 ```
