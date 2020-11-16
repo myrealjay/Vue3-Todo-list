@@ -10,7 +10,9 @@ import Todo from './components/Todo.vue';
   components: {
     Todo,
   },
+  
 })
+
 export default class App extends Vue {}
 </script>
 

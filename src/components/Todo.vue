@@ -1,53 +1,153 @@
 <template>
     <div>
-        <div class="main">
-            
-            <h1>Todo App</h1>
+        <div class="container">
+            <div class="content">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1>Todo App</h1>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                         <div class="horizontal">
+                            
+                            <button id="add" class="btn btn-info" data-toggle="modal" data-target="#todoModal"><i class="material-icons">add</i>Add New</button>
+                        </div>
+                    </div>
 
-            <div class="horizontal">
-                <input id="title" type="text" v-model="item" class="form-control">
-                <button id="add" class="btn btn-info" @click="addNew()">Add New</button>
+                    <div class="col-md-12" style="margin-top:50px;">
+                         <div class="display">
+                            <label>Total: {{total}}</label>
+                            <label >Pending: {{totalPending}}</label>
+                            <label >Done: {{totalDone}}</label>
+                        </div>
+                    </div>
+                   
+                </div>
+
+                <div class="row" v-for="(todo,i) in todos" :key="i">
+                     <div class="col-md-11">
+                         <div class="todo" >
+                            <div :class="todo.done==1?'done-todo':'todo-item'">{{todo.name}}</div>
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-1 btns" style="padding-left:12px;">
+                        <button class="done" @click="markDone(i)"><i class="material-icons">check_circle</i></button>
+                        <button class="del" @click="Delete(i)"><i class="material-icons">delete</i></button>
+                        <button style="display:none;" data-toggle="modal" data-target="#viewModal" id="view"></button>
+                        <button  class="del" @click="view(i)"><i class="material-icons">visibility</i></button>
+                    </div>
+                </div>
+
+                </div>
             </div>
 
-            <div class="display">
-                <label>Total: {{total}}</label>
-                <label >Pending: {{totalPending}}</label>
-                <label >Done: {{totalDone}}</label>
+
+            <!-- Modal -->
+            <div class="modal fade" id="todoModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Add Todo</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">title</label>
+                        <input id="title" type="text" v-model="item" class="form-control">
+                    </div>
+                     <div class="form-group">
+                        <label for="">Description</label>
+                        <textarea v-model="description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="addNew()">Submit</button>
+                </div>
+                </div>
+            </div>
             </div>
 
-            <div class="todo" v-for="(todo,i) in todos" :key="i">
-                <div :class="todo.done==1?'done-todo':'todo-item'">{{todo.name}}</div>
-                 <button class="done" @click="markDone(i)">Done</button>
-                 <button class="del" @click="Delete(i)">Del</button>
+
+            <div class="modal fade" id="viewModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">View Todo</h5>
+                </div>
+                <div class="modal-body" v-if="todo">
+                    <div class="form-group">
+                        <label for="">title</label>
+                        <div>
+                            {{todo.name}}
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <label for="">Description</label>
+                        <div>
+                            {{todo.desc}}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div>
             </div>
-           
+            </div>
+
         </div>
-    </div>
+        
+    
 </template>
 
 <script lang="ts">
+
 import {defineComponent, reactive,ref,computed} from 'vue';
 
 const Component=defineComponent({
    
     name:'Todo',
     setup(){
+       
+       const $=require('jquery');
         //get already saved todo if exists
         let saved_todos:string|null=localStorage.getItem('todos');
         let item=ref('');
+        let description=ref('');
 
         //set todos to saved todo if exist or initialize it as empty array
         const todos:any[]=reactive(saved_todos?JSON.parse(saved_todos):[]);
 
+        let todo=ref('');
+
+        function view(i:number){
+            todo.value=todos[i];
+            document.getElementById('view').click();
+        }
+        
+        function addTodo(){
+            $('#todoModal').modal('show');
+        }
+        function close(){
+            item.value='';
+            description.value='';
+            document.getElementById('close').click();
+
+        }
         //add a new todo and save it to local storage
         function addNew(){
+            
             let todo={
-                name:'',
+                name:item.value,
+                desc:description.value,
                 done:0,
             };
-            todo.name=item.value;
             todos.push(todo);
             localStorage.setItem('todos',JSON.stringify(todos));
+            close();
         }
 
         //mark todo as done
@@ -77,7 +177,12 @@ const Component=defineComponent({
             Delete,
             total,
             totalPending,
-            totalDone
+            totalDone,
+            addTodo,
+            close,
+            view,
+            todo
+            
         }
     }
 })
@@ -85,41 +190,37 @@ export default Component;
 </script>
 
 <style scoped>
+.btns{
+    display:flex;
+    justify-content: flex-end;
+}
     .done-todo{
         background-color: rgb(167, 241, 167);
-         width:90%;
          padding:10px;
        
         margin-top:10px;
         border-radius: 10px;
         box-shadow: 0 1px 2px #d4cece;
     }
-    .todo{
-        display:flex;
-        justify-content: space-between;
-    }
-    .todo button{
-        height:20px;
-        margin-top:10px;
-    }
-    .done,.del{
-        width:50px;
+    .done,.del,.view{
         border-radius: 5px;
         border:none;
         color:#fff;
+        background:none;
+        width: 25px;
 
     }
     .done{
-        background-color:#008000;
+        color:#008000;
     }
     .del{
-        background-color:#ff0000;
+        color:#ff0000;
     }
-    .todo .todo-item{
-        width:90%;
+    .view{
+        color:#837d7d;
     }
     .main{
-        background-color: #f3ebeb;
+       
         min-height:100vh;
         padding:50px;
     }
@@ -134,58 +235,15 @@ export default Component;
     label{
         padding-left:10px;
     }
-    .horizontal{
-        display:flex;
-        justify-content: flex-start;
-        margin-bottom: 50px;
-    }
-    .horizontal input[type='text']{
-        width:90%;
-    }
-     .horizontal button{
-        width:10%;
-    }
-    .btn-info{
-        background-color:#6464df;
-        color:#fff;
-        border-color:#6464da;
-        border-radius: 5px;
-        padding:5px;
-    }
-    .btn-info:hover{
-        background-color:#8686f1;
-        color:#fff;
-        border-color:#7878f3;
-        border-radius: 5px;
-        padding:5px;
-    }
-    input{
-        min-height: 30px;
-    }
-
-    input[type='text']{
-        border-radius: 8px;
-        border-color:rgb(245, 242, 242);
-    }
-
+  
+   
     .todo-item{
         padding:10px;
         background-color:#fcf4f4;
         margin-top:10px;
         border-radius: 10px;
         box-shadow: 0 1px 2px #d4cece;
+        width:100%;
     }
 
-    @media screen and (max-width: 768px){
-        .horizontal{
-            display:block;
-        }
-        .horizontal input[type='text']{
-            width:100%;
-            margin-bottom: 15px;
-        }
-         .horizontal button{
-            width:120px;
-        }
-    }
 </style>
