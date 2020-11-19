@@ -12,7 +12,7 @@
                     <div class="col-md-12">
                          <div class="horizontal">
                             
-                            <button id="add" class="btn btn-info" data-toggle="modal" data-target="#todoModal"><i class="material-icons">add</i>Add New</button>
+                            <button id="add" class="btn btn-info" @click="addTodo()"><i class="material-icons">add</i>Add New</button>
                         </div>
                     </div>
 
@@ -36,7 +36,6 @@
                     <div class="col-md-1 btns" style="padding-left:12px;">
                         <button class="done" @click="markDone(i)"><i class="material-icons">check_circle</i></button>
                         <button class="del" @click="Delete(i)"><i class="material-icons">delete</i></button>
-                        <button style="display:none;" data-toggle="modal" data-target="#viewModal" id="view"></button>
                         <button  class="del" @click="view(i)"><i class="material-icons">visibility</i></button>
                     </div>
                 </div>
@@ -59,12 +58,14 @@
                     </div>
                      <div class="form-group">
                         <label for="">Description</label>
-                        <textarea v-model="description" class="form-control"></textarea>
+                        <textarea id="desc" v-model="description" class="form-control"></textarea>
                     </div>
                 </div>
+                
                 <div class="modal-footer">
-                    <button type="button" id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @click="addNew()">Submit</button>
+                    <button id="test">testing</button>
+                    <button id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="adder" class="btn btn-primary" @click="addNew()">Submit</button>
                 </div>
                 </div>
             </div>
@@ -125,7 +126,7 @@ const Component=defineComponent({
 
         function view(i:number){
             todo.value=todos[i];
-            document.getElementById('view').click();
+            $('#viewModal').modal('show');
         }
         
         function addTodo(){
@@ -134,7 +135,7 @@ const Component=defineComponent({
         function close(){
             item.value='';
             description.value='';
-            document.getElementById('close').click();
+            $('#todoModal').modal('hide');
 
         }
         //add a new todo and save it to local storage
@@ -181,7 +182,8 @@ const Component=defineComponent({
             addTodo,
             close,
             view,
-            todo
+            todo,
+            description
             
         }
     }
