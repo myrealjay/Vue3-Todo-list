@@ -2,15 +2,10 @@
     <div>
         <div class="container">
             <div class="content">
+                
                 <div class="row">
-                    <div class="col-md-12">
-                        <h1>Todo App</h1>
-                    </div>
-                    
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                         <div class="horizontal">
+                     <div class="col-md-12" type="margin-top:50px;padding-top:100px;">
+                         <div >
                             
                             <button id="add" class="btn btn-info" @click="addTodo()"><i class="material-icons">add</i>Add New</button>
                         </div>
@@ -36,7 +31,8 @@
                     <div class="col-md-1 btns" style="padding-left:12px;">
                         <button class="done" @click="markDone(i)"><i class="material-icons">check_circle</i></button>
                         <button class="del" @click="Delete(i)"><i class="material-icons">delete</i></button>
-                        <button  class="del" @click="view(i)"><i class="material-icons">visibility</i></button>
+                         <button class="view" @click="view(i)"><i class="material-icons">visibility</i></button>
+                        
                     </div>
                 </div>
 
@@ -63,37 +59,8 @@
                 </div>
                 
                 <div class="modal-footer">
-                    <button id="test">testing</button>
                     <button id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button id="adder" class="btn btn-primary" @click="addNew()">Submit</button>
-                </div>
-                </div>
-            </div>
-            </div>
-
-
-            <div class="modal fade" id="viewModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">View Todo</h5>
-                </div>
-                <div class="modal-body" v-if="todo">
-                    <div class="form-group">
-                        <label for="">title</label>
-                        <div>
-                            {{todo.name}}
-                        </div>
-                    </div>
-                     <div class="form-group">
-                        <label for="">Description</label>
-                        <div>
-                            {{todo.desc}}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
                 </div>
             </div>
@@ -106,70 +73,68 @@
 
 <script lang="ts">
 
-import {defineComponent, reactive,ref,computed} from 'vue';
+import {defineComponent,ref,computed} from 'vue';
+import {useStore} from 'vuex';
+import {useRouter} from 'vue-router';
 
 const Component=defineComponent({
    
     name:'Todo',
     setup(){
-       
+       const store=useStore();
        const $=require('jquery');
-        //get already saved todo if exists
-        let saved_todos:string|null=localStorage.getItem('todos');
+       const router=useRouter();
+       
         let item=ref('');
         let description=ref('');
 
-        //set todos to saved todo if exist or initialize it as empty array
-        const todos:any[]=reactive(saved_todos?JSON.parse(saved_todos):[]);
+        //get stored todos from store
+        const todos=computed(()=>{
+            return store.state.todos;
+        })
 
-        let todo=ref('');
-
-        function view(i:number){
-            todo.value=todos[i];
-            $('#viewModal').modal('show');
-        }
-        
+        //opens the add todo modal
         function addTodo(){
             $('#todoModal').modal('show');
         }
-        function close(){
-            item.value='';
-            description.value='';
-            $('#todoModal').modal('hide');
 
-        }
         //add a new todo and save it to local storage
         function addNew(){
-            
             let todo={
                 name:item.value,
                 desc:description.value,
                 done:0,
             };
-            todos.push(todo);
-            localStorage.setItem('todos',JSON.stringify(todos));
+            store.dispatch('addTodo',todo);
             close();
+        }
+
+        //closes todo modal
+        function close(){
+            item.value='';
+            description.value='';
+            $('#todoModal').modal('hide');
+        }
+
+        function view(i:number){
+            router.push({name:'view-todo',params:{id:i}});
         }
 
         //mark todo as done
         function markDone(i:number){
-            todos[i].done=1;
-             localStorage.setItem('todos',JSON.stringify(todos));
+            store.dispatch('markDone',i);
         }
 
         //delete a todo item
         function Delete(i:number){
-            todos.splice(i,1);
-            localStorage.setItem('todos',JSON.stringify(todos));
+            store.dispatch('deleteTodo',i);
         }
 
-        const total=computed(()=>todos.length);
-        const totalPending=computed(()=>{
-            return todos.filter(item=>item.done===0).length;
-        })
-         const totalDone=computed(()=>{
-            return todos.filter(item=>item.done===1).length;
-        })
+        //get counts
+        const total=computed(()=>todos.value.length);
+        const totalPending=computed(()=>todos.value.filter(item=>item.done===0).length)
+        const totalDone=computed(()=>todos.value.filter(item=>item.done===1).length)
+
         return{
             todos,
             addNew,
@@ -182,9 +147,7 @@ const Component=defineComponent({
             addTodo,
             close,
             view,
-            todo,
             description
-            
         }
     }
 })
